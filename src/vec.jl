@@ -27,6 +27,8 @@ Vec4T{T}(xyz::Vec3T,w::StaticNumber) where T = Vec4T{T}(xyz...,w)
 Vec4T{T}(xy::Vec2T,zw::Vec2T) where T = Vec4T{T}(xy...,zw...)
 # Actually glsl has oversized vec constructors, such as vec2(vec3(1,2,3))=vec2(1,2). I don't wanna support that.
 
+export Vec2T, Vec3T, Vec4T, VecTN, VecNT
+
 # Generate concrete types and constructors
 for n in 2:4
     dsym = Symbol("Vec"*string(n)*"T")

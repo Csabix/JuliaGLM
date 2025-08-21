@@ -8,6 +8,8 @@ const MatTNxM{T,N,M}               = MatNxMT{N,M,T}
 const MatNT{N}                     = MatNxMT{N,N}
 const MatTN{T,N}                   = MatNT{N,T}
 
+export MatNxMT, MatTNxM, MatNT, MatTN
+
 mat_constructor(::Type{MatNxMT{N,M,T,L}},v...) where {N,M,T,L} = SMatrix{N,M,T,L}(v...) # general constructor
 mat_constructor(::Type{MatNxMT{N,N,T,L}}, x::StaticNumber) where {N,T,L} = one(SMatrix{N,N,T,L}).*x # can do better?
 mat_constructor(::Type{MatNxMT{N,M,T,L}}, x::StaticNumber) where {N,M,T,L} = SMatrix{N,M,T,L}(diagm(N,M,repeat([x],min(N,M))))
@@ -33,7 +35,7 @@ for n in 2:4
     # Diagonal types : MatN:
     nsym = Symbol("Mat$(n)T");
     @eval const $nsym{T} = MatNT{$n,T,$n*$n}
-    #@eval export $nsym
+    @eval export $nsym
     for (str, type) in CharTypeMap
         ssym = Symbol(uppercase(str)*"Mat$(n)")
         fsym = Symbol(lowercase(str)*"mat$(n)")
@@ -65,4 +67,5 @@ function perspective(fovy::T, aspect::T, zNear::T, zFar::T) :: Mat4T{T} where T
     )
 end
 
-#export  lookat, perspective
+export lookat
+export perspective
