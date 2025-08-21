@@ -37,7 +37,7 @@ for n in 2:4
         fsym = Symbol(lowercase(str)*"vec"*string(n))
         @eval const $ssym = $dsym{$type}
         @eval @inline $fsym(v...) = $ssym(v...) 
-        #@eval export $ssym, $fsym
+        @eval export $ssym, $fsym
     end
 end
 
@@ -89,6 +89,4 @@ const Vec4F = Vec4T{Float32}
 const Vec3F = Vec3T{Float32}
 const Vec2F = Vec2T{Float32}
 
-export Vec4F
-export Vec3F
-export Vec2F
+export Vec2F, Vec3F, Vec4F

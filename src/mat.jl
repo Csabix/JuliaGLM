@@ -41,7 +41,7 @@ for n in 2:4
         fsym = Symbol(lowercase(str)*"mat$(n)")
         @eval const $ssym = $nsym{$type}
         @eval @inline $fsym(v...) = mat_constructor($ssym,v...) 
-        #@eval export $ssym, $fsym
+        @eval export $ssym, $fsym
     end
 end
 
