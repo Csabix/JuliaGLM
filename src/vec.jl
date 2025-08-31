@@ -66,7 +66,7 @@ function checkindex_string(::Type{Bool}, inds::AbstractUnitRange, I::String) # s
 end
 const SwizzleBounds = [UInt8('x'):UInt8('x'),UInt8('x'):UInt8('y'),UInt8('x'):UInt8('z'),UInt8('w'):UInt8('z')]; # wxyz in ABC vs xyzw order 
 @inline function getindex(v::VecNT{N,T},swizzle::String) where {N,T} # String SWIZZLE
-    @boundscheck (1<=length(swizzle)<=4) & checkindex_string(Bool,SwizzleBounds[N],swizzle) || Base.throw_boundserror(v,swizzle)
+    @boundscheck (1<=Base.length(swizzle)<=4) & checkindex_string(Bool,SwizzleBounds[N],swizzle) || Base.throw_boundserror(v,swizzle)
     @inbounds getindex(v, (UInt8.(Tuple(swizzle)) .& 0x03) .+ 1) # mod('wxyz',4) = [3,0,1,2]
 end
 

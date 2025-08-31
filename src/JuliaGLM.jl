@@ -39,6 +39,7 @@ using LinearAlgebra
 
 include("vec.jl")
 include("mat.jl")
+include("functions.jl")
 
 # custom SHOW
 import StaticArrays.show
