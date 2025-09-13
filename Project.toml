@@ -1,5 +1,6 @@
 name = "JuliaGLM"
 uuid = "d62f3426-b328-4065-b1cd-fa40c3c5e4f7"
+version = "0.0.1"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
