@@ -90,3 +90,9 @@ const Vec3F = Vec3T{Float32}
 const Vec2F = Vec2T{Float32}
 
 export Vec2F, Vec3F, Vec4F
+
+const Vec4D = Vec4T{Float64}
+const Vec3D = Vec3T{Float64}
+const Vec2D = Vec2T{Float64}
+
+export Vec2D, Vec3D, Vec4D
