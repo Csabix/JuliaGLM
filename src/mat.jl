@@ -50,20 +50,24 @@ end
 #
 
 function lookat(eye::Vec3T{T}, at::Vec3T{T}, up::Vec3T{T}) :: Mat4T{T} where T
-    f = -normalize(at-eye)      # Why -?
-    s = normalize(cross(f,up))
-    u = cross(s,f)
-    M3 = [s u f]'
-    return [M3 -M3*eye; 0 0 0 1]
+    f = normalize(eye-at)
+    s = normalize(cross(up,f))
+    u = cross(f,s)
+    return Mat4T{T}(
+        s[1], u[1], f[1], zero(T),
+        s[2], u[2], f[2], zero(T),
+        s[3], u[3], f[3], zero(T),
+        -dot(s, eye), -dot(u, eye), -dot(f, eye), one(T)
+    )
 end
 function perspective(fovy::T, aspect::T, zNear::T, zFar::T) :: Mat4T{T} where T
     a  = tan(fovy/T(2))
     dz = zFar-zNear
     return Mat4T{T}(
-        one(T)/(aspect*a), 0,        0,                 0,
-        0,               one(T)/(a), 0,                 0,
-        0,               0,        -(zFar+zNear)/dz,   -1,
-        0,               0,        -(2*zFar*zNear)/dz,  0
+        one(T)/(aspect*a), zero(T),    zero(T),            zero(T),
+        zero(T),           one(T)/(a), zero(T),            zero(T),
+        zero(T),           zero(T),    -(zFar+zNear)/dz,  -one(T),
+        zero(T),           zero(T),    -(2*zFar*zNear)/dz, zero(T)
     )
 end
 

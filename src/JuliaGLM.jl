@@ -23,7 +23,7 @@ const noSizedTypes = true;
 const BaseCharTypeMap  = [""=>Float32,"d"=>Float64, "b"=>Bool,    "i"=>Int32,  "u"=>UInt32]
 const SizedCharTypeMap = ["i8"=>Int8, "i16"=>Int16, "i32"=>Int32, "i64"=>Int64,
                           "u8"=>UInt8,"u16"=>UInt16,"u32"=>UInt32,"u64"=>UInt64]
-const CharTypeMap = vcat(BaseCharTypeMap,ifelse(noSizedTypes,[],SizedCharTypeMap))
+const CharTypeMap = vcat(BaseCharTypeMap,ifelse(noSizedTypes,Pair{String, DataType}[],SizedCharTypeMap))
 
 # Basically Base.Number, except only static sized types are allowed:
 const StaticFloat    = Union{Float16,Float32,Float64}
