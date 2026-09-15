@@ -9,7 +9,7 @@ using StaticArrays
     @test sizeof(DVec2) == 2*sizeof(Float64)
     @test sizeof(Vec3) == sizeof(Vec3(1,2,3))
     @test Vec3 == typeof(vec3(1,2,3))
-    @test Vec2(1,2) isa FieldVector
+    @test Vec2(1,2) isa SVector
     @test Vec4T{Float32}(1,2,3,4) isa VecNT
 end
 
@@ -29,19 +29,17 @@ end
 @testset "Vec member access" begin
     a = rand(Vec3)
     @test a.x === a[1] && a.y === a[2] && a.z === a[3]
-    @test a["y"] === a.y
     @test a[(3,)] === a.z
-    @test a["yx"] == a[(2,1)]
-    @test a["zx"].y == a.x
-    @test a["zzzz"] == vec4(a.z)
+    @test a.yx == a[(2,1)]
+    @test a.zx.y == a.x
+    @test a.zzzz == vec4(a.z)
     b = rand(IVec4)
-    @test b["wzyx"]["wzyx"] == b
+    @test b.wzyx.wzyx == b
     @test_throws BoundsError a[4]
     @test_throws BoundsError b[(5,)]
-    @test_throws BoundsError a["w"]
-    @test_throws BoundsError a["u"]
-    @test_throws BoundsError b["{"] # 'z'+1
-    @test_throws BoundsError b["xyzwx"]
+    @test_throws FieldError a.w
+    @test_throws FieldError a.u
+    @test_throws FieldError b.xyzwx
 end
 
 @testset "Mat type creation" begin

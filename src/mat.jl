@@ -63,13 +63,26 @@ end
 function perspective(fovy::T, aspect::T, zNear::T, zFar::T) :: Mat4T{T} where T
     a  = tan(fovy/T(2))
     dz = zFar-zNear
+    two = one(T) + one(T)
     return Mat4T{T}(
-        one(T)/(aspect*a), zero(T),    zero(T),            zero(T),
-        zero(T),           one(T)/(a), zero(T),            zero(T),
-        zero(T),           zero(T),    -(zFar+zNear)/dz,  -one(T),
-        zero(T),           zero(T),    -(2*zFar*zNear)/dz, zero(T)
+        one(T)/(aspect*a), zero(T),    zero(T),              zero(T),
+        zero(T),           one(T)/(a), zero(T),              zero(T),
+        zero(T),           zero(T),    -(zFar+zNear)/dz,    -one(T),
+        zero(T),           zero(T),    -(two*zFar*zNear)/dz, zero(T)
+    )
+end
+function ortho(left::T, right::T, bottom::T, top::T, zNear::T, zFar::T)::Mat4T{T} where T
+    dx = right - left
+    dy = top - bottom
+    dz = zFar - zNear
+    
+    two = one(T) + one(T)
+    return Mat4T{T}(
+        two / dx,              zero(T),              zero(T),             zero(T),
+        zero(T),               two / dy,             zero(T),             zero(T),
+        zero(T),               zero(T),             -two / dz,            zero(T),
+        -(right + left) / dx, -(top + bottom) / dy, -(zFar + zNear) / dz, one(T)
     )
 end
 
-export lookat
-export perspective
+export lookat, perspective, ortho
