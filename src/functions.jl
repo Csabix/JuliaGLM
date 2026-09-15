@@ -104,10 +104,13 @@ smoothstep(edge0::T, edge1::T, x::VecNT{N,T}) where {N,T<:Union{Float32,Float64}
 # Geometric Functions (8.5)
 
 length(x::Union{GenFType,GenDType})                                     = sum(x .^ 2) |> sqrt
-normalize(x::Union{GenFType,GenDType})                                  = LinearAlgebra.normalize(x)
+normalize(x::Union{GenFType,GenDType})                                  = x ./ length(x)
 distance(p0::T, p1::T)              where {T<:Union{GenFType,GenDType}} = length(p0 .- p1)
-dot(x::T, y::T)                     where {T<:Union{GenFType,GenDType}} = LinearAlgebra.dot(x, y)
-cross(x::VecNT{3,T}, y::VecNT{3,T}) where {T<:Union{Float32,Float64}}   = LinearAlgebra.cross(x, y)
+dot(x::T, y::T)                     where {T<:Union{GenFType,GenDType}} = sum(x .* y)
+cross(x::VecNT{3,T}, y::VecNT{3,T}) where {T<:Union{Float32,Float64}}   =
+    similar_type(x)(x[2] * y[3] - x[3] * y[2],
+                    x[3] * y[1] - x[1] * y[3],
+                    x[1] * y[2] - x[2] * y[1])
 faceforward(N::T, I::T, Nref::T)    where {T<:Union{GenFType,GenDType}} = dot(Nref, I) < 0 ? N : -N
 
 function reflect(I::T, N::T) where {T<:Union{GenFType,GenDType}}

@@ -35,7 +35,6 @@ const StaticNumber   = Union{StaticReal,Complex{<:StaticReal}}
 #export StaticFloat,StaticSigned,StaticUnsigned,StaticInteger,StaticReal,StaticNumber # maybe not needed
 
 using StaticArrays
-using LinearAlgebra
 
 include("vec.jl")
 include("mat.jl")
