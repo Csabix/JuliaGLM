@@ -3,12 +3,12 @@
 #   Vec N
 #
 
-const VecNT{N,T<:StaticNumber} = SVector{N, T}
+abstract type VecNT{N,T<:StaticNumber} <: FieldVector{N, T} end
 const VecTN{T,N} = VecNT{N,T}
 
-const Vec2T{T} = VecNT{2,T}
-const Vec3T{T} = VecNT{3,T}
-const Vec4T{T} = VecNT{4,T}
+struct Vec2T{T} <: VecNT{2,T};  x::T; y::T;             end
+struct Vec3T{T} <: VecNT{3,T};  x::T; y::T; z::T;       end
+struct Vec4T{T} <: VecNT{4,T};  x::T; y::T; z::T; w::T; end
 
 StaticArrays.similar_type(::Type{<:Vec2T}, ::Type{T}, s::Size{(2,)}) where T = Vec2T{T}
 StaticArrays.similar_type(::Type{<:Vec3T}, ::Type{T}, s::Size{(3,)}) where T = Vec3T{T}
@@ -90,6 +90,11 @@ end
 @def_swizzle Vec2T 4 ('x', 'y')
 @def_swizzle Vec3T 4 ('x', 'y', 'z')
 @def_swizzle Vec4T 4 ('x', 'y', 'z', 'w')
+
+# Dont like it
+@Base.propagate_inbounds @inline function getindex(v::VecNT,s::Symbol)
+    return Base.getproperty(v, s)
+end
 
 export getindex
 
