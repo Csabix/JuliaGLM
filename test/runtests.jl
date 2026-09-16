@@ -2,6 +2,12 @@ using JuliaGLM
 using Test
 using StaticArrays
 
+@static if VERSION >= v"1.12"
+    const FieldAccessError = FieldError
+else
+    const FieldAccessError = ErrorException
+end
+
 @testset "Vec types        " begin
     @test VecTN{Float32,2} == VecNT{2,Float32}
     @test sizeof(Vec2T{Bool}) == sizeof(BVec2)
@@ -9,8 +15,8 @@ using StaticArrays
     @test sizeof(DVec2) == 2*sizeof(Float64)
     @test sizeof(Vec3) == sizeof(Vec3(1,2,3))
     @test Vec3 == typeof(vec3(1,2,3))
-    @test Vec2(1,2) isa SVector
-    @test Vec4T{Float32}(1,2,3,4) isa VecNT
+    @test Vec2(1,2) isa FieldVector
+    @test Vec4T{Float32}(1,2,3,4) isa FieldVector
 end
 
 @testset "Vec constructors " begin
@@ -37,9 +43,9 @@ end
     @test b.wzyx.wzyx == b
     @test_throws BoundsError a[4]
     @test_throws BoundsError b[(5,)]
-    @test_throws FieldError a.w
-    @test_throws FieldError a.u
-    @test_throws FieldError b.xyzwx
+    @test_throws FieldAccessError a.w
+    @test_throws FieldAccessError a.u
+    @test_throws FieldAccessError b.xyzwx
 end
 
 @testset "Mat type creation" begin
