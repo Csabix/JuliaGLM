@@ -10,9 +10,10 @@ const MatTN{T,N}                   = MatNT{N,T}
 
 export MatNxMT, MatTNxM, MatNT, MatTN
 
-mat_constructor(::Type{MatNxMT{N,M,T,L}},v...) where {N,M,T,L} = SMatrix{N,M,T,L}(v...) # general constructor
+mat_constructor(::Type{MatNxMT{N,M,T,L}},v...) where {N,M,T,L} = SMatrix{M,N,T,L}(v...) # general constructor
 mat_constructor(::Type{MatNxMT{N,N,T,L}}, x::StaticNumber) where {N,T,L} = one(SMatrix{N,N,T,L}).*x # can do better?
-mat_constructor(::Type{MatNxMT{N,M,T,L}}, x::StaticNumber) where {N,M,T,L} = SMatrix{N,M,T,L}(diagm(N,M,repeat([x],min(N,M))))
+mat_constructor(::Type{MatNxMT{N,M,T,L}}, x::StaticNumber) where {N,M,T,L} = # column-major diagonal fill
+    SMatrix{M,N,T,L}(ntuple(k -> ifelse(mod1(k,M) == cld(k,M), T(x), zero(T)), Val(L)))
 mat_constructor(::Type{MatNxMT{N,M,T,L}}, vs::Vararg{VecNT{N}}) where {N,M,T,L} = SMatrix{N,M,T,L}((vs...)...)
 # Glsl has matN constructors such as mat3(vec2,float,vec2,float,vec2,float)
 # which can be useful, but no alignmet to the columns is necessery. I don't wanna suport either.
@@ -50,22 +51,39 @@ end
 #
 
 function lookat(eye::Vec3T{T}, at::Vec3T{T}, up::Vec3T{T}) :: Mat4T{T} where T
-    f = -normalize(at-eye)      # Why -?
-    s = normalize(cross(f,up))
-    u = cross(s,f)
-    M3 = [s u f]'
-    return [M3 -M3*eye; 0 0 0 1]
+    f = normalize(eye-at)
+    s = normalize(cross(up,f))
+    u = cross(f,s)
+    return Mat4T{T}(
+        s[1], u[1], f[1], zero(T),
+        s[2], u[2], f[2], zero(T),
+        s[3], u[3], f[3], zero(T),
+        -dot(s, eye), -dot(u, eye), -dot(f, eye), one(T)
+    )
 end
 function perspective(fovy::T, aspect::T, zNear::T, zFar::T) :: Mat4T{T} where T
     a  = tan(fovy/T(2))
     dz = zFar-zNear
+    two = one(T) + one(T)
     return Mat4T{T}(
-        one(T)/(aspect*a), 0,        0,                 0,
-        0,               one(T)/(a), 0,                 0,
-        0,               0,        -(zFar+zNear)/dz,   -1,
-        0,               0,        -(2*zFar*zNear)/dz,  0
+        one(T)/(aspect*a), zero(T),    zero(T),              zero(T),
+        zero(T),           one(T)/(a), zero(T),              zero(T),
+        zero(T),           zero(T),    -(zFar+zNear)/dz,    -one(T),
+        zero(T),           zero(T),    -(two*zFar*zNear)/dz, zero(T)
+    )
+end
+function ortho(left::T, right::T, bottom::T, top::T, zNear::T, zFar::T)::Mat4T{T} where T
+    dx = right - left
+    dy = top - bottom
+    dz = zFar - zNear
+    
+    two = one(T) + one(T)
+    return Mat4T{T}(
+        two / dx,              zero(T),              zero(T),             zero(T),
+        zero(T),               two / dy,             zero(T),             zero(T),
+        zero(T),               zero(T),             -two / dz,            zero(T),
+        -(right + left) / dx, -(top + bottom) / dy, -(zFar + zNear) / dz, one(T)
     )
 end
 
-export lookat
-export perspective
+export lookat, perspective, ortho

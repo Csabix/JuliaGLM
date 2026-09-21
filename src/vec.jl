@@ -56,34 +56,42 @@ end
 @Base.propagate_inbounds @inline function getindex(v::VecNT{N,T},ii::NTuple{4}) where {N,T}
     Vec4T{T}(v[@inbounds ii[1]],v[@inbounds ii[2]],v[@inbounds ii[3]],@inbounds v[ii[4]])
 end
-function checkindex_string(::Type{Bool}, inds::AbstractUnitRange, I::String) # same signiture as in Base.checkindex, but only one use, no need to generalize
-    @inline 
-    b = true
-    for i in I
-        b &= checkindex(Bool, inds, UInt8(i))
+
+macro def_swizzle(type, max_len, chars_tuple)
+    chars = [eval(arg) for arg in chars_tuple.args]
+    ast = :(getfield(v, sym))
+    
+    for len in max_len:-1:1
+        for c in Iterators.product(ntuple(_ -> chars, len)...)
+            sym_name = Symbol(join(c))
+            char_map = (4,1,2,3)
+            indices = [char_map[Int(ch) - 118] for ch in c]
+            L = Base.length(indices)
+            
+            if L == 1
+                val_expr = :(@inbounds v[$(indices[1])])
+            else
+                target_type = Symbol(:Vec, L, :T)
+                args = [:(@inbounds v[$i]) for i in indices]
+                val_expr = Expr(:call, target_type, args...)
+            end
+            
+            ast = :(sym === $(QuoteNode(sym_name)) ? $val_expr : $ast)
+        end
     end
-    b
+    
+    return quote
+        @inline function Base.getproperty(v::$type, sym::Symbol)
+            return $ast
+        end
+    end
 end
-const SwizzleBounds = [UInt8('x'):UInt8('x'),UInt8('x'):UInt8('y'),UInt8('x'):UInt8('z'),UInt8('w'):UInt8('z')]; # wxyz in ABC vs xyzw order 
-@inline function getindex(v::VecNT{N,T},swizzle::String) where {N,T} # String SWIZZLE
-    @boundscheck (1<=length(swizzle)<=4) & checkindex_string(Bool,SwizzleBounds[N],swizzle) || Base.throw_boundserror(v,swizzle)
-    @inbounds getindex(v, (UInt8.(Tuple(swizzle)) .& 0x03) .+ 1) # mod('wxyz',4) = [3,0,1,2]
-end
+
+@def_swizzle Vec2T 4 ('x', 'y')
+@def_swizzle Vec3T 4 ('x', 'y', 'z')
+@def_swizzle Vec4T 4 ('x', 'y', 'z', 'w')
 
 export getindex
-
-function getAPlane()::Vector{Vec3} 
-    plane = Vector{Vec3}()
-    push!(plane,Vec3(-1.0,-1.0, 1.0))
-    push!(plane,Vec3(-1.0,1.0,1.0))
-    push!(plane,Vec3(1.0,-1.0,1.0))
-    push!(plane,Vec3(-1.0,1.0,1.0))
-    push!(plane,Vec3(1.0,1.0,1.0))
-    push!(plane,Vec3(1.0,-1.0,1.0))
-    return plane
-end
-
-export getAPlane
 
 const Vec4F = Vec4T{Float32}
 const Vec3F = Vec3T{Float32}
