@@ -91,11 +91,6 @@ end
 @def_swizzle Vec3T 4 ('x', 'y', 'z')
 @def_swizzle Vec4T 4 ('x', 'y', 'z', 'w')
 
-# Dont like it
-@Base.propagate_inbounds @inline function getindex(v::VecNT,s::Symbol)
-    return Base.getproperty(v, s)
-end
-
 export getindex
 
 const Vec4F = Vec4T{Float32}

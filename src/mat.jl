@@ -10,10 +10,10 @@ const MatTN{T,N}                   = MatNT{N,T}
 
 export MatNxMT, MatTNxM, MatNT, MatTN
 
-mat_constructor(::Type{MatNxMT{N,M,T,L}},v...) where {N,M,T,L} = SMatrix{N,M,T,L}(v...) # general constructor
+mat_constructor(::Type{MatNxMT{N,M,T,L}},v...) where {N,M,T,L} = SMatrix{M,N,T,L}(v...) # general constructor
 mat_constructor(::Type{MatNxMT{N,N,T,L}}, x::StaticNumber) where {N,T,L} = one(SMatrix{N,N,T,L}).*x # can do better?
 mat_constructor(::Type{MatNxMT{N,M,T,L}}, x::StaticNumber) where {N,M,T,L} = # column-major diagonal fill
-    SMatrix{N,M,T,L}(ntuple(k -> ifelse(mod1(k,N) == cld(k,N), T(x), zero(T)), Val(L)))
+    SMatrix{M,N,T,L}(ntuple(k -> ifelse(mod1(k,M) == cld(k,M), T(x), zero(T)), Val(L)))
 mat_constructor(::Type{MatNxMT{N,M,T,L}}, vs::Vararg{VecNT{N}}) where {N,M,T,L} = SMatrix{N,M,T,L}((vs...)...)
 # Glsl has matN constructors such as mat3(vec2,float,vec2,float,vec2,float)
 # which can be useful, but no alignmet to the columns is necessery. I don't wanna suport either.
