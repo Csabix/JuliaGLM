@@ -1,6 +1,6 @@
 name = "JuliaGLM"
 uuid = "d62f3426-b328-4065-b1cd-fa40c3c5e4f7"
-version = "0.0.1"
+version = "0.0.2"
 
 [deps]
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
